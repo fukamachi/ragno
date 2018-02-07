@@ -55,6 +55,13 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
 $ psychiq --host localhost --port 6379 --system my-crawlers
 ```
 
+## Worker options
+
+- `:max-redirects`: Redirection limit when requesting web pages (Default: `5`)
+- `:concurrency`: Concurrency limit for each URL domain (Default: `10`)
+- `:request-delay`: Delay to actually process the job (Default: `0`)
+- `:user-agent`: User-Agent header string when accessing web pages (Default: `"Ragno-Crawler"`)
+
 ## See Also
 
 - [Psychiq](https://github.com/fukamachi/psychiq)
