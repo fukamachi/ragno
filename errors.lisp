@@ -7,7 +7,8 @@
                 #:render-uri)
   (:export #:ragno-error
            #:ragno-fetch-error
-           #:ragno-parse-error))
+           #:ragno-parse-error
+           #:ragno-concurrency-limit))
 (in-package #:ragno/errors)
 
 (define-condition ragno-error () ())
@@ -19,3 +20,9 @@
                (format stream "Fetch failed from '~A' (Code=~A)"
                        (quri:render-uri (response-uri response))
                        (response-status response))))))
+
+(define-condition ragno-concurrency-limit (ragno-error)
+  ((uri :initarg :uri))
+  (:report (lambda (condition stream)
+             (format stream "Failed to run a spider because of the concurrency limit: ~A"
+                     (slot-value condition 'uri)))))

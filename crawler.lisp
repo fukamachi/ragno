@@ -30,6 +30,7 @@
 (defmethod psy:perform ((crawler crawler) &rest args)
   (let ((uri (first args))
         (*user-agent* (crawler-user-agent crawler)))
+    (quri:uri-domain (quri:uri uri))
     (scrape crawler uri)))
 
 (defgeneric follow-links (crawler uri-or-uris)
