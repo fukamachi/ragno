@@ -25,7 +25,7 @@
                   :initform 5
                   :accessor spider-max-redirects)
    (concurrency :initarg :concurrency
-                :initform 10
+                :initform 1
                 :accessor spider-concurrency)
 
    (%lock :initform (bt:make-lock "spider concurrent lock")
