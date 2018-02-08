@@ -8,6 +8,9 @@
   (:import-from #:ragno/http
                 #:request)
   (:import-from #:quri)
+  (:import-from #:bordeaux-threads
+                #:make-lock
+                #:with-lock-held)
   (:import-from #:alexandria
                 #:starts-with-subseq)
   (:export #:spider
@@ -25,6 +28,8 @@
                 :initform 10
                 :accessor spider-concurrency)
 
+   (%lock :initform (bt:make-lock "spider concurrent lock")
+          :allocation :class)
    (%concurrent-count :type hash-table
                       :initform (make-hash-table :test 'equal)
                       :allocation :class)))
@@ -35,15 +40,17 @@
 
 (defgeneric fetch (spider uri)
   (:method (spider uri)
-    (with-slots (%concurrent-count concurrency) spider
+    (with-slots (%lock %concurrent-count concurrency) spider
       (let ((quri (quri:uri-domain (quri:uri uri))))
-        (if (< (gethash quri %concurrent-count 0) concurrency)
-            (incf (gethash quri %concurrent-count 0))
-            (error 'ragno-concurrency-limit :uri uri))
+        (bt:with-lock-held (%lock)
+          (if (< (gethash quri %concurrent-count 0) concurrency)
+              (incf (gethash quri %concurrent-count 0))
+              (error 'ragno-concurrency-limit :uri uri)))
         (unwind-protect
              (request uri
                       :max-redirects (spider-max-redirects spider))
-          (decf (gethash quri %concurrent-count 0)))))))
+          (bt:with-lock-held (%lock)
+            (decf (gethash quri %concurrent-count 0))))))))
 
 (defgeneric scrape (spider uri)
   (:method (spider uri)
