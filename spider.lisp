@@ -37,7 +37,7 @@
    (%concurrent-count :type hash-table
                       :initform (make-hash-table :test 'equal)
                       :allocation :class)
-   (last-request-done-at :initform (get-universal-time)
+   (last-request-done-at :initform (/ (get-internal-real-time) 1000.0)
                          :allocation :class)))
 
 (defgeneric parse (spider response)
@@ -58,7 +58,7 @@
                      :retry-after request-delay)))
         (unwind-protect
              (progn
-               (sleep (max (- (+ last-request-done-at request-delay) (get-universal-time))
+               (sleep (max (- (+ last-request-done-at request-delay) (/ (get-internal-real-time) 1000.0))
                            0))
                (vom:info "Fetching ~S" uri)
                (let ((start (get-internal-real-time)))
@@ -68,7 +68,7 @@
                    (vom:info "Fetch done (~S sec)"
                              (/ (- (get-internal-real-time) start) 1000.0)))))
           (bt:with-lock-held (%spider-lock)
-            (setf last-request-done-at (get-universal-time))
+            (setf last-request-done-at (/ (get-internal-real-time) 1000.0))
             (decf (gethash domain %concurrent-count 0))))))))
 
 (defgeneric scrape (spider uri)
