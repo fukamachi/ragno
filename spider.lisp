@@ -60,8 +60,13 @@
              (progn
                (sleep (max (- (+ last-request-done-at request-delay) (get-universal-time))
                            0))
-               (request uri
-                        :max-redirects (spider-max-redirects spider)))
+               (vom:info "Fetching ~S" uri)
+               (let ((start (get-internal-real-time)))
+                 (prog1
+                     (request uri
+                              :max-redirects (spider-max-redirects spider))
+                   (vom:info "Fetch done (~S sec)"
+                             (/ (- (get-internal-real-time) start) 1000.0)))))
           (bt:with-lock-held (%spider-lock)
             (setf last-request-done-at (get-universal-time))
             (decf (gethash domain %concurrent-count 0))))))))

@@ -27,6 +27,9 @@
     (handler-case
         (scrape crawler uri)
       (ragno-concurrency-limit (e)
+        (vom:info "Retry ~S after ~S secs"
+                  (class-name (class-of crawler))
+                  (retry-after e))
         (psy:enqueue-in-sec (retry-after e)
                             (class-name (class-of crawler))
                             args)))))
