@@ -21,12 +21,12 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
          (path (quri:uri-path uri)))
     (cond
       ((string= "/broadcast/" path)
-       (ragno:follow-links crawler
-                           (lquery:$ (lquery:initialize (response-body response))
-                             ".main .contents ul li a"
-                             (attr "href")
-                             (map (lambda (href)
-                                    (quri:merge-uris (quri:uri href) uri))))))
+       (apply #'psy:enqueue-bulk 'rakugo-kyokai
+              (lquery:$ (lquery:initialize (response-body response))
+                ".main .contents ul li a"
+                (attr "href")
+                (map (lambda (href)
+                       (list (quri:merge-uris (quri:uri href) uri)))))))
       ((string= "/jyoseki/index.php" path)
        (parse-jyoseki (ragno:response-body response)))
       (t ;; Unknown page

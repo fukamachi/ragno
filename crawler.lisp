@@ -15,15 +15,11 @@
   (:export #:crawler
            #:crawler-concurrency
            #:crawler-enqueue-interval
-           #:crawler-user-agent
-           #:follow-links))
+           #:crawler-user-agent))
 (in-package #:ragno/crawler)
 
 (defclass crawler (spider psy:worker)
-  ((enqueue-interval :initarg :enqueue-interval
-                     :initform 0
-                     :accessor crawler-enqueue-interval)
-   (user-agent :initarg :user-agent
+  ((user-agent :initarg :user-agent
                :initform "Ragno-Crawler"
                :accessor crawler-user-agent)))
 
@@ -32,16 +28,3 @@
         (*user-agent* (crawler-user-agent crawler)))
     (quri:uri-domain (quri:uri uri))
     (scrape crawler uri)))
-
-(defgeneric follow-links (crawler uri-or-uris)
-  (:method ((crawler crawler) uri-or-uris)
-    (loop for uri in (etypecase uri-or-uris
-                       (list uri-or-uris)
-                       (vector (coerce uri-or-uris 'list))
-                       ((or string quri:uri) (list uri-or-uris)))
-          for i from 1
-          do (psy:enqueue-in-sec (* i (crawler-enqueue-interval crawler))
-                                 (class-name (class-of crawler))
-                                 (list (etypecase uri
-                                         (string uri)
-                                         (quri:uri (quri:render-uri uri))))))))

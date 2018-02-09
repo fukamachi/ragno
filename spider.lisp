@@ -2,7 +2,6 @@
   (:use #:cl
         #:ragno/errors)
   (:import-from #:ragno/response
-                #:make-response
                 #:response-headers
                 #:response-body)
   (:import-from #:ragno/http
