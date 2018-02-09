@@ -14,6 +14,7 @@
                 #:starts-with-subseq)
   (:export #:spider
            #:spider-max-redirects
+           #:spider-concurrency-per-domain
            #:parse
            #:fetch
            #:scrape))
@@ -23,12 +24,12 @@
   ((max-redirects :initarg :max-redirects
                   :initform 5
                   :accessor spider-max-redirects)
-   (concurrency :initarg :concurrency
-                :initform 1
-                :accessor spider-concurrency)
+   (concurrency-per-domain :initarg :concurrency-per-domain
+                           :initform 1
+                           :accessor spider-concurrency-per-domain)
 
-   (%lock :initform (bt:make-lock "spider concurrent lock")
-          :allocation :class)
+   (%spider-lock :initform (bt:make-lock "spider concurrent lock")
+                 :allocation :class)
    (%concurrent-count :type hash-table
                       :initform (make-hash-table :test 'equal)
                       :allocation :class)))
@@ -39,16 +40,16 @@
 
 (defgeneric fetch (spider uri)
   (:method (spider uri)
-    (with-slots (%lock %concurrent-count concurrency) spider
+    (with-slots (%spider-lock %concurrent-count concurrency-per-domain) spider
       (let ((quri (quri:uri-domain (quri:uri uri))))
-        (bt:with-lock-held (%lock)
-          (if (< (gethash quri %concurrent-count 0) concurrency)
+        (bt:with-lock-held (%spider-lock)
+          (if (< (gethash quri %concurrent-count 0) concurrency-per-domain)
               (incf (gethash quri %concurrent-count 0))
               (error 'ragno-concurrency-limit :uri uri)))
         (unwind-protect
              (request uri
                       :max-redirects (spider-max-redirects spider))
-          (bt:with-lock-held (%lock)
+          (bt:with-lock-held (%spider-lock)
             (decf (gethash quri %concurrent-count 0))))))))
 
 (defgeneric scrape (spider uri)

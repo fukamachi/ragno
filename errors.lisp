@@ -11,7 +11,7 @@
            #:ragno-concurrency-limit))
 (in-package #:ragno/errors)
 
-(define-condition ragno-error () ())
+(define-condition ragno-error (error) ())
 
 (define-condition ragno-fetch-error (ragno-error)
   ((response :initarg :response))

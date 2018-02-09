@@ -13,7 +13,7 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
 
 (defclass rakugo-kyokai (ragno:crawler) ()
   (:default-initargs
-   :enqueue-interval 5
+   :request-delay 5
    :user-agent "Rakugo-Kyokai-Crawler"))
 
 (defmethod ragno:parse ((crawler rakugo-kyokai) response)
@@ -21,16 +21,16 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
          (path (quri:uri-path uri)))
     (cond
       ((string= "/broadcast/" path)
-       (apply #'psy:enqueue-bulk 'rakugo-kyokai
-              (lquery:$ (lquery:initialize (response-body response))
-                ".main .contents ul li a"
-                (attr "href")
-                (map (lambda (href)
-                       (list (quri:merge-uris (quri:uri href) uri)))))))
+       (lquery:$ (lquery:initialize (ragno:response-body response))
+         ".main .contents ul li a"
+         (attr "href")
+         (map (lambda (href)
+                (psy:enqueue 'rakugo-kyokai
+                             (list (quri:merge-uris href uri)))))))
       ((string= "/jyoseki/index.php" path)
        (parse-jyoseki (ragno:response-body response)))
       (t ;; Unknown page
-       nil))))
+       nil)))))
 
 (defun parse-jyoseki (html)
   (lquery:$ (lquery:initialize html)
@@ -57,10 +57,11 @@ $ psychiq --host localhost --port 6379 --system my-crawlers
 
 ## Worker options
 
-- `:max-redirects`: Redirection limit when requesting web pages (Default: `5`)
-- `:concurrency`: Concurrency limit for each URL domain (Default: `1`)
-- `:enqueue-interval`: Interval seconds to actually process new jobs (Default: `0`)
+- `:concurrency`: Concurrency limit for each crawler class (Default: `1`)
+- `:request-delay`: Interval seconds between for each job processes (Default: `0`)
 - `:user-agent`: User-Agent header string when accessing web pages (Default: `"Ragno-Crawler"`)
+- `:max-redirects`: Redirection limit when requesting web pages (Default: `5`)
+- `:concurrency-per-domain`: Concurrency limit for each URL domains (Default: `1`)
 
 ## See Also
 
