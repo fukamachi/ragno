@@ -13,7 +13,7 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
 
 (defclass rakugo-kyokai (ragno:crawler) ()
   (:default-initargs
-   :request-delay 5
+   :enqueue-interval 5
    :user-agent "Rakugo-Kyokai-Crawler"))
 
 (defmethod ragno:parse ((crawler rakugo-kyokai) response)
@@ -59,7 +59,7 @@ $ psychiq --host localhost --port 6379 --system my-crawlers
 
 - `:max-redirects`: Redirection limit when requesting web pages (Default: `5`)
 - `:concurrency`: Concurrency limit for each URL domain (Default: `1`)
-- `:request-delay`: Delay to actually process the job (Default: `0`)
+- `:enqueue-interval`: Interval seconds to actually process new jobs (Default: `0`)
 - `:user-agent`: User-Agent header string when accessing web pages (Default: `"Ragno-Crawler"`)
 
 ## See Also
