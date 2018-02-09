@@ -26,7 +26,7 @@ Common Lisp Web crawling library based on [Psychiq](https://github.com/fukamachi
          (attr "href")
          (map (lambda (href)
                 (psy:enqueue 'rakugo-kyokai
-                             (list (quri:merge-uris href uri)))))))
+                             (list (quri:render-uri (quri:merge-uris (quri:uri href) uri))))))))
       ((string= "/jyoseki/index.php" path)
        (parse-jyoseki (ragno:response-body response)))
       (t ;; Unknown page
