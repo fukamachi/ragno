@@ -57,7 +57,6 @@ $ psychiq --host localhost --port 6379 --system my-crawlers
 
 ## Worker options
 
-- `:concurrency`: Concurrency limit for each crawler class (Default: `1`)
 - `:request-delay`: Interval seconds between for each job processes (Default: `0`)
 - `:user-agent`: User-Agent header string when accessing web pages (Default: `"Ragno-Crawler"`)
 - `:max-redirects`: Redirection limit when requesting web pages (Default: `5`)

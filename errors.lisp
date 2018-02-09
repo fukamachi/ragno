@@ -22,7 +22,10 @@
                        (response-status response))))))
 
 (define-condition ragno-concurrency-limit (ragno-error)
-  ((uri :initarg :uri))
+  ((uri :initarg :uri)
+   (retry-after :initarg :retry-after
+                :reader retry-after))
   (:report (lambda (condition stream)
-             (format stream "Failed to run a spider because of the concurrency limit: ~A"
-                     (slot-value condition 'uri)))))
+             (format stream "Failed to fetch ~S because of the concurrency limit. Retry after ~S secs."
+                     (slot-value condition 'uri)
+                     (slot-value condition 'retry-after)))))
