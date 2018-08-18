@@ -10,6 +10,7 @@
   (:import-from #:bordeaux-threads
                 #:make-lock
                 #:with-lock-held)
+  (:import-from #:vom)
   (:import-from #:alexandria
                 #:starts-with-subseq)
   (:export #:spider

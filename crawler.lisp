@@ -12,6 +12,7 @@
                 #:worker
                 #:perform
                 #:enqueue-in-sec)
+  (:import-from #:vom)
   (:export #:crawler
            #:crawler-user-agent))
 (in-package #:ragno/crawler)
